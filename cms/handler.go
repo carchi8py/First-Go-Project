@@ -2,8 +2,51 @@ package cms
 
 import (
 	"net/http"
+	"strings"
 	"time"
 )
+
+// ServePage serves a page based on teh route matche. This will match any url
+// begining with /page
+func ServePage(w http.ResponseWriter, r *http.Request) {
+	path := strings.TrimLeft(r.URL.Path, "/page/")
+
+	if path == "" {
+		http.NotFound(w, r)
+		return
+	}
+
+	p := &Page{
+		Title: strings.ToTitle(path),
+		Content: "Here is my page",
+	}
+
+	Tmpl.ExecuteTemplate(w, "page", p)
+}
+
+// ServePost serves a post
+func ServePost(w http.ResponseWriter, r *http.Request) {
+	path := strings.TrimLeft(r.URL.Path, "/post/")
+
+	if path == "" {
+		http.NotFound(w, r)
+		return
+	}
+
+	p := &Post{
+		Title: strings.ToTitle(path),
+		Content: "Here is my page",
+		Comments: []*Comment{
+			&Comment{
+				Author: "Ben Tranter",
+				Comment: "Looks great!",
+				DatePublished: time.Now(),
+			},
+		},
+	}
+
+	Tmpl.ExecuteTemplate(w, "post", p)
+}
 
 //HandleNew Handles preview logic
 func HandleNew(w http.ResponseWriter, r *http.Request) {
